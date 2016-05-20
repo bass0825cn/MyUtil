@@ -2,10 +2,7 @@ package com.sdc.util;
 
 import com.project.model.Wzlymb;
 import com.sdc.connect.OracleConnection;
-import com.sun.javaws.exceptions.ExitException;
-import oracle.net.aso.C09;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -21,6 +18,10 @@ public class ClassForDataBase {
     private Enums.DataBaseName dataBaseName;
     private Connection connection;
 
+    /**
+     * 初始数据库类型
+     * @param dbName    String类型，数据库名称，Oracle mysql,PostgreSQL,sql server等。
+     */
     public ClassForDataBase(String dbName){
         if (dbName.toUpperCase().equals("MYSQL")){
             this.dataBaseName = Enums.DataBaseName.MySQL;
@@ -36,11 +37,11 @@ public class ClassForDataBase {
 
     /**
      * 获取Model对象实例的属性名，及属性值
-     * @param   Object类型,Model对象的实例。
+     * @param o  Object类型，对象实例。
      * @return  Map类型，把对象实例中的属性名和属性值加入Map中。
      */
     private Map<String, String> getColumnsValues(Object o){
-        Map<String, String> cvs = new HashMap<String, String>();
+        Map<String, String> cvs = new HashMap<>();
         Class c = o.getClass();
         Method[] methods = c.getMethods();
         for (Method method: methods){
@@ -49,7 +50,8 @@ public class ClassForDataBase {
                 String fieldName = mName.substring(3, mName.length());
                 String fieldValue = "";
                 try{
-                    Object v = method.invoke(o, null);
+                    Object[] args = new Object[]{};
+                    Object v = method.invoke(o, args);
                     if (v instanceof Date){
                         fieldValue = convertDateFormat((Date) v);
                     }else{
@@ -72,8 +74,10 @@ public class ClassForDataBase {
     private String[] getPrimaryKeys(Object o){
         Class c = o.getClass();
         try {
-            Method method = c.getMethod("getPrimaryKeys", null);
-            return (String[]) method.invoke(o, null);
+            Class<?>[] cs = new Class<?>[]{};
+            Method method = c.getMethod("getPrimaryKeys", cs);
+            Object[] args = new Object[]{};
+            return (String[]) method.invoke(o, args);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -87,8 +91,7 @@ public class ClassForDataBase {
      */
     private String getTableName(Object o){
         String cName = o.getClass().getName();
-        String tableName = cName.substring(cName.lastIndexOf(".") + 1, cName.length());
-        return tableName;
+        return cName.substring(cName.lastIndexOf(".") + 1, cName.length());
     }
 
     /**
@@ -127,6 +130,9 @@ public class ClassForDataBase {
         sql = sql.substring(0, sql.length() - 1);
         //获取表的主键
         String[] primaryKeys = getPrimaryKeys(o);
+        if (primaryKeys == null){
+            return "have not primary key";
+        }
         if (primaryKeys.length <= 0){
             return "have not primary key";
         }
@@ -140,12 +146,20 @@ public class ClassForDataBase {
         return sql;
     }
 
+    /**
+     * 生成delete语句，要求数据库中的表名，与Model类型名相同，表中的字段名与属性名相同。
+     * @param o Object类型，对象的实例。
+     * @return  String类型，delete语句 。
+     */
     public String getDeleteSQL(Object o){
         String tableName = getTableName(o);
         String sql = "delete from " + tableName;
         Map<String, String> cvs = getColumnsValues(o);
         //获取表的主键
         String[] primaryKeys = getPrimaryKeys(o);
+        if (primaryKeys == null){
+            return "have not primary key";
+        }
         if (primaryKeys.length <= 0){
             return "have not primary key";
         }
@@ -154,7 +168,27 @@ public class ClassForDataBase {
             String value = cvs.get(key);
             whereStr += key + "=" + value + " and ";
         }
-        whereStr = whereStr.substring(0, whereStr.lastIndexOf(" and ") - 1);
+        whereStr = whereStr.substring(0, whereStr.lastIndexOf(" and "));
+        sql += whereStr;
+        return sql;
+    }
+
+    private String getSelectSQL(Object o){
+        String sql = "select ";
+        Map<String, String> cvs = getColumnsValues(o);
+        for (String key: cvs.keySet()){
+            sql += key + ",";
+        }
+        sql = sql.substring(0, sql.length() - 1);
+        String[] primaryKeys = getPrimaryKeys(o);
+        if (primaryKeys == null || primaryKeys.length <= 0){
+            return "not have primary key";
+        }
+        String whereStr = " where ";
+        for (String pk: primaryKeys){
+            whereStr += pk + "=" + cvs.get(pk) + " and ";
+        }
+        whereStr = whereStr.substring(0, whereStr.lastIndexOf(" and "));
         sql += whereStr;
         return sql;
     }
@@ -180,8 +214,7 @@ public class ClassForDataBase {
     public int executeSQL(String sql){
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            int cnt = preparedStatement.executeUpdate();
-            return cnt;
+            return preparedStatement.executeUpdate();
         }catch (SQLException e){
             e.printStackTrace();
             return -1;
@@ -191,8 +224,7 @@ public class ClassForDataBase {
     public ResultSet selectSQL(String sql){
         try{
             Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(sql);
-            return rs;
+            return statement.executeQuery(sql);
         }catch (SQLException e){
             e.printStackTrace();
             return null;
@@ -217,5 +249,7 @@ public class ClassForDataBase {
         System.out.println("update sql--->" + sql);
         sql = classForDataBase.getDeleteSQL(wzlymb);
         System.out.println("delete sql--->" + sql);
+        sql = classForDataBase.getSelectSQL(wzlymb);
+        System.out.println("select sql--->" + sql);
     }
 }
