@@ -36,7 +36,7 @@ public class ClassForDataBase {
 
     /**
      * 获取Model对象实例的属性名，及属性值
-     * @param o Object类型,Model对象的实例。
+     * @param   Object类型,Model对象的实例。
      * @return  Map类型，把对象实例中的属性名和属性值加入Map中。
      */
     private Map<String, String> getColumnsValues(Object o){
