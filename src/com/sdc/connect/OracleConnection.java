@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
+ * Oracle连接类
  * Created by Administrator on 2016-05-17.
  */
 public class OracleConnection {

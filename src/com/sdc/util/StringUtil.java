@@ -3,6 +3,7 @@ package com.sdc.util;
 import java.io.File;
 
 /**
+ * 字符串工作类
  * Created by Administrator on 2016-05-17.
  */
 public class StringUtil {

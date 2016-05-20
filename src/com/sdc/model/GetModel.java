@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Date;
 
 /**
+ * 根据数据库的表，生成Model类型文件。
  * Created by Administrator on 2016-05-12.
  */
 public class GetModel {
@@ -194,7 +195,7 @@ public class GetModel {
     private String generateAttrs(List<Field> fields){
         String attrs = "";
         for (Field f: fields){
-            if (f.getRemarks() != null && f.getRemarks() != ""){
+            if (f.getRemarks() != null && !f.getRemarks().equals("")){
                 attrs += "//  " + f.getRemarks() + lineSeparator;
             }
             attrs += "\tprivate " + f.getJavaType(dataBaseName) + " " + f.getColumnName() + ";" + lineSeparator;

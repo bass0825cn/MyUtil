@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
+ * 文件工具类
  * Created by Administrator on 2016-05-10.
  */
 public class FileUtil {
@@ -31,7 +32,7 @@ public class FileUtil {
     public static String getFilePath(String file){
         String fPath = file.trim();
         fPath = fPath.substring(0, fPath.lastIndexOf(separatorChar));
-        if (fPath.substring(fPath.length() - 1) != separatorChar){
+        if (!fPath.substring(fPath.length() - 1).equals(separatorChar)){
             fPath += separatorChar;
         }
         return fPath;

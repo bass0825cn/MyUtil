@@ -3,6 +3,7 @@ package com.sdc.model;
 import com.sdc.util.Enums;
 
 /**
+ * 获取数据库中的字段信息
  * Created by Administrator on 2016-05-12.
  */
 public class Field {

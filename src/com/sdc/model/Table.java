@@ -1,6 +1,7 @@
 package com.sdc.model;
 
 /**
+ * 表类型，获取数据中的表信息
  * Created by Administrator on 2016-05-12.
  */
 public class Table {

@@ -1,6 +1,7 @@
 package com.sdc.model;
 
 /**
+ * 主键类型，获取数据中的主键信息
  * Created by Administrator on 2016-05-12.
  */
 public class PrimaryKey {
@@ -66,8 +67,8 @@ public class PrimaryKey {
 
         PrimaryKey that = (PrimaryKey) o;
 
-        if (tableName != null ? !tableName.toUpperCase().equals(that.tableName.toUpperCase()) : that.tableName != null) return false;
-        return columnName != null ? columnName.toUpperCase().equals(that.columnName.toUpperCase()) : that.columnName == null;
+        return (tableName != null ? !tableName.toUpperCase().equals(that.tableName.toUpperCase()) : that.tableName != null) &&
+                columnName != null ? columnName.toUpperCase().equals(that.columnName.toUpperCase()) : that.columnName == null;
 
     }
 
