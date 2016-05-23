@@ -1,8 +1,12 @@
 package com.project.model;
 
 import com.sdc.connect.MyConnection;
+import com.sdc.util.StringUtil;
 
 import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -158,10 +162,103 @@ abstract class BaseModel {
         return sql;
     }
 
+    private boolean checkPrimaryKeys(){
+        boolean isNew = false;
+        Map<String, String> cvs = getColumnsValues();
+        String[] primaryKeys = getPrimaryKeys();
+        for (String pk: primaryKeys){
+            if (cvs.get(pk).equals("") || cvs.get(pk) == null){
+                isNew = true;
+                break;
+            }
+        }
+        return isNew;
+    }
+
+    /**
+     * 保存数据，如果主键字段对应属性，有任何一个为空，则执行Insert语句，否则执行Update语句。
+     * @return  int类型，返回影响的记录数。
+     */
+    public int save(){
+        String saveString;
+        if (checkPrimaryKeys()){
+            saveString = generatorInsertSQL();
+        }else{
+            saveString = generatorUpdateSQL();
+        }
+        return MyConnection.execSQL(saveString);
+    }
+
+    /**
+     * 删除数据,按主键删除数据。
+     * @return  int类型，删除数据的条数。
+     */
+    public int delete(){
+        return MyConnection.execSQL(generatorDeleteSQL());
+    }
+
+    /**
+     * 从数据库中加载数据，只加载符合主键条件的数据。
+     * @return int类型，返回符合条件的记录数。
+     */
+    public int loadData(){
+        if (checkPrimaryKeys()){
+            return -1;
+        }else{
+            int cnt;
+            try {
+                ResultSet rs = MyConnection.openSQL(generatorSelectSQL());
+                try {
+                    rs.first();
+                    loadData(rs);
+                    rs.last();
+                    cnt = rs.getRow();
+                }catch (NullPointerException en){
+                    en.printStackTrace();
+                    cnt = 0;
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+                cnt = -2;
+            }
+            return cnt;
+        }
+    }
+
+    public void loadData(ResultSet rs){
+        try{
+            ResultSetMetaData resultSetMetaData = rs.getMetaData();
+            for (int i = 1; i < resultSetMetaData.getColumnCount(); i++){
+                try{
+                    Method method = this.getClass().getMethod("set" + StringUtil.convertFirstCharUpper(resultSetMetaData.getColumnName(i)));
+                    Object[] objects = new Object[1];
+                    objects[0] = rs.getObject(i);
+                    method.invoke(this,objects);
+                }catch (Exception en){
+                    en.printStackTrace();
+                }
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String toString() {
+        String showString = generatorTableName() + "{";
+        Map<String, String> cvs = getColumnsValues();
+        for (String key: cvs.keySet()){
+            showString += key + "='" + cvs.get(key) + "'," ;
+        }
+        showString = showString.substring(0, showString.lastIndexOf(",")) + "}";
+        return showString;
+    }
+
     public void outputSQL(){
         System.out.println("insert SQL--->" + generatorInsertSQL());
         System.out.println("select SQL--->" + generatorSelectSQL());
         System.out.println("delete SQL--->" + generatorDeleteSQL());
         System.out.println("update SQL--->" + generatorUpdateSQL());
+        System.out.println(toString());
     }
 }

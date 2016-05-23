@@ -17,6 +17,9 @@ public class TaskModel {
         wzlymb.setZDR("sdc");
         wzlymb.setZJE(1000L);
         wzlymb.setRZBZ("1");
+        int count = wzlymb.save();
+        count = wzlymb.loadData();
         wzlymb.outputSQL();
+        count = wzlymb.delete();
     }
 }

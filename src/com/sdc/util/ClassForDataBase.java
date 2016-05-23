@@ -4,7 +4,6 @@ import com.project.model.Wzlymb;
 import com.sdc.connect.OracleConnection;
 
 import java.lang.reflect.Method;
-import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
@@ -15,7 +14,6 @@ import java.util.Date;
 public class ClassForDataBase {
 
     private Enums.DataBaseName dataBaseName;
-    private Connection connection;
 
     /**
      * 初始数据库类型
@@ -30,7 +28,6 @@ public class ClassForDataBase {
             this.dataBaseName = Enums.DataBaseName.PostgreSQL;
         }else{
             this.dataBaseName = Enums.DataBaseName.Oracle;
-            connection = OracleConnection.connection;
         }
     }
 
@@ -73,8 +70,7 @@ public class ClassForDataBase {
     private String[] getPrimaryKeys(Object o){
         Class c = o.getClass();
         try {
-            Class<?>[] cs = new Class<?>[]{};
-            Method method = c.getMethod("getPrimaryKeys", cs);
+            Method method = c.getMethod("getPrimaryKeys");
             Object[] args = new Object[]{};
             return (String[]) method.invoke(o, args);
         }catch (Exception e){
@@ -217,26 +213,6 @@ public class ClassForDataBase {
                 break;
         }
         return resultString;
-    }
-
-    public int executeSQL(String sql){
-        try{
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            return preparedStatement.executeUpdate();
-        }catch (SQLException e){
-            e.printStackTrace();
-            return -1;
-        }
-    }
-
-    public ResultSet selectSQL(String sql){
-        try{
-            Statement statement = connection.createStatement();
-            return statement.executeQuery(sql);
-        }catch (SQLException e){
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static void main(String[] args){

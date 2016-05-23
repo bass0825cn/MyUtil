@@ -4,9 +4,7 @@ import com.sdc.util.Enums;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Date;
 import java.util.Properties;
 
@@ -29,27 +27,27 @@ public class MyConnection {
         this.dataSource = dataSource;
     }
 
-    public static void setConnection(Connection connection) {
-        MyConnection.connection = connection;
+    public static void setConnection() {
+
     }
 
-    public MyConnection(){
+    public static Connection getConnection(){
         String driverString = "";
         String dbName, user, pass, url;
-        try {
-            Properties ps = new Properties();
-            ps.load(this.getClass().getResourceAsStream("/DBSetting.properties"));
-            dbName = ps.getProperty("DatabaseName");
-            user = ps.getProperty("Username");
-            pass = ps.getProperty("Password");
-            url = ps.getProperty("URL");
-        }catch (IOException e){
-            e.printStackTrace();
+//        try {
+//            Properties ps = new Properties();
+//            ps.load(this.getClass().getResourceAsStream("/DBSetting.properties"));
+//            dbName = ps.getProperty("DatabaseName");
+//            user = ps.getProperty("Username");
+//            pass = ps.getProperty("Password");
+//            url = ps.getProperty("URL");
+//        }catch (IOException e){
+//            e.printStackTrace();
             dbName = "Oracle";
             user = "jdyyfam";
             pass = "jdyyfam";
             url = "jdbc:oracle:thin:@127.0.0.1:1521:orcl";
-        }
+//        }
         switch (dbName.toLowerCase()){
             case "oracle":
                 driverString = "oracle.jdbc.driver.OracleDriver";
@@ -73,9 +71,6 @@ public class MyConnection {
             System.out.println("数据库连接失败！");
             connection = null;
         }
-    }
-
-    public static Connection getConnection() {
         return connection;
     }
 
@@ -95,5 +90,27 @@ public class MyConnection {
                 break;
         }
         return resultString;
+    }
+
+    public static int execSQL(String sql){
+        try{
+            connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            return preparedStatement.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public static ResultSet openSQL(String sql){
+        try{
+            connection = getConnection();
+            Statement statement = connection.createStatement();
+            return statement.executeQuery(sql);
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }
