@@ -1,5 +1,6 @@
 package com.sdc.model;
 
+import com.sdc.connect.MyConnection;
 import com.sdc.connect.OracleConnection;
 import com.sdc.util.Enums;
 import com.sdc.util.FileUtil;
@@ -29,23 +30,9 @@ public class GetModel {
 
     /**
      * 构造函数，连接数据库，获取数据库元数据
-     * @param ip    String类型，数据库IP地址或主机名
-     * @param port  String类型，数据库端口号
-     * @param sid   String类型，数据库实例名（SID）
-     * @param user  String类型，登录数据库的用户名
-     * @param pass  String类型，登录数据库密码
      */
-    public GetModel(String ip, String port, String sid, String user, String pass, Enums.DataBaseName dataBaseName){
-        this.dataBaseName = dataBaseName;
-        switch (dataBaseName){
-            case Oracle:
-                OracleConnection oracleConnection = new OracleConnection(ip, port, sid, user, pass);
-                connection = oracleConnection.connection;
-                break;
-            default:
-                connection = null;
-                break;
-        }
+    public GetModel(){
+        connection = MyConnection.getConnection();
         if (connection != null){
             try {
                 databaseMetaData = connection.getMetaData();
@@ -274,7 +261,7 @@ public class GetModel {
     }
 
     public static void main(String[] args){
-        GetModel g = new GetModel("127.0.0.1", "1521", "orcl", "jdyyfam", "jdyyfam", Enums.DataBaseName.Oracle);
+        GetModel g = new GetModel();
         g.setPackageName("com.project.model");
         g.setTableList("jdyyfam");
         g.getTableColumns("jdyyfam", "wzlymb");

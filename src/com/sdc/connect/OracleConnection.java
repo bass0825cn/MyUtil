@@ -13,7 +13,7 @@ public class OracleConnection {
 
     public static Connection connection;
 
-    public OracleConnection(String ip, String port, String sid, String user, String pass){
+    public OracleConnection(String user, String pass, String url){
         try{
             try{
                 Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -24,7 +24,8 @@ public class OracleConnection {
             ps.put("user", user);
             ps.put("password", pass);
             ps.put("remarksReporting", "true");
-            String URL = "jdbc:oracle:thin:@" + ip + ":" + port + ":" + sid;
+//            String URL = "jdbc:oracle:thin:@" + ip + ":" + port + ":" + sid;
+            String URL = url;
             connection = DriverManager.getConnection(URL, ps);
         }catch (SQLException es){
             System.out.println("数据库连接失败！");

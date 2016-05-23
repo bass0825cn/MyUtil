@@ -3,7 +3,6 @@ package com.sdc.util;
 import com.project.model.Wzlymb;
 import com.sdc.connect.OracleConnection;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.*;
@@ -173,6 +172,11 @@ public class ClassForDataBase {
         return sql;
     }
 
+    /**
+     * 生成select语句，表名要和Model类名一致，字段名要与属性名相同。
+     * @param o Object类型，对象的实例
+     * @return  String类型，select语句
+     */
     private String getSelectSQL(Object o){
         String sql = "select ";
         Map<String, String> cvs = getColumnsValues(o);
@@ -191,6 +195,10 @@ public class ClassForDataBase {
         whereStr = whereStr.substring(0, whereStr.lastIndexOf(" and "));
         sql += whereStr;
         return sql;
+    }
+
+    public boolean saveToDataBase(){
+        return true;
     }
 
     /**

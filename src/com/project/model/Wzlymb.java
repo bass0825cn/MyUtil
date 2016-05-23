@@ -1,5 +1,7 @@
 package com.project.model;
 
+import com.sdc.util.Enums;
+
 /**
  * wzlymb实体类
  * Thu May 19 11:09:49 CST 2016 Song Da Cai Create
@@ -27,8 +29,13 @@ public class Wzlymb extends BaseModel{
 //  主键
 	private static String[] primaryKeys = {"DJID", "CLASS"};
 
-	public static String[] getPrimaryKeys() {
-		return primaryKeys;
+	public Wzlymb(){
+        super();
+	}
+
+    @Override
+	public String[] getPrimaryKeys() {
+        return primaryKeys;
 	}
 
 	public void setDJID(String DJID){
@@ -102,11 +109,6 @@ public class Wzlymb extends BaseModel{
 	public String getRZBZ(){
 		return this.RZBZ;
 }
-
-	@Override
-	public void setPrimaryKeyValues(){
-
-	}
 
 	@Override
 	public String toString() {
