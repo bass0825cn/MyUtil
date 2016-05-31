@@ -1,6 +1,9 @@
 package com.project.model;
 
+import com.sdc.connect.ConnectionPool;
 import com.sdc.util.Enums;
+
+import java.sql.SQLException;
 
 /**
  * wzlymb实体类
@@ -29,8 +32,8 @@ public class Wzlymb extends BaseModel{
 //  主键
 	private static String[] primaryKeys = {"DJID", "CLASS"};
 
-	public Wzlymb(){
-        super();
+	public Wzlymb(ConnectionPool cPool) throws SQLException{
+        super(cPool);
 	}
 
     @Override

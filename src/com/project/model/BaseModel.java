@@ -1,9 +1,11 @@
 package com.project.model;
 
+import com.sdc.connect.ConnectionPool;
 import com.sdc.connect.MyConnection;
 import com.sdc.util.StringUtil;
 
 import java.lang.reflect.Method;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -18,9 +20,12 @@ import java.util.Map;
 abstract class BaseModel {
 
     public abstract String[] getPrimaryKeys();
+    private Connection connection;
+    private boolean ISNEW;
 
-    public BaseModel(){
-
+    public BaseModel(ConnectionPool cPool) throws SQLException{
+        this.ISNEW = true;
+        connection = cPool.getConnection();
     }
 
     /**
@@ -181,7 +186,7 @@ abstract class BaseModel {
      */
     public int save(){
         String saveString;
-        if (checkPrimaryKeys()){
+        if (ISNEW){
             saveString = generatorInsertSQL();
         }else{
             saveString = generatorUpdateSQL();
@@ -234,6 +239,7 @@ abstract class BaseModel {
                     Object[] objects = new Object[1];
                     objects[0] = rs.getObject(i);
                     method.invoke(this,objects);
+                    this.ISNEW = false;
                 }catch (Exception en){
                     en.printStackTrace();
                 }
